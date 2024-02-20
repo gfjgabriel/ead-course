@@ -74,7 +74,7 @@ public class ModuleController {
     }
 
     @PutMapping("/courses/{courseId}/modules/{moduleId}")
-    public ResponseEntity<Object> updateCourse(
+    public ResponseEntity<Object> updateModule(
             @PathVariable(value = "courseId") UUID courseId,
             @PathVariable(value = "moduleId") UUID moduleId,
             @RequestBody @Valid ModuleDto dto
