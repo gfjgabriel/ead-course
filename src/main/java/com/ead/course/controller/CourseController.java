@@ -3,6 +3,7 @@ package com.ead.course.controller;
 import com.ead.course.dtos.CourseDto;
 import com.ead.course.models.CourseModel;
 import com.ead.course.services.CourseService;
+import com.ead.course.specifications.SpecificationTemplate;
 import com.ead.course.specifications.SpecificationTemplate.CourseSpec;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -80,9 +82,16 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Page<CourseModel>> getAllCourses(
             CourseSpec spec,
-            @PageableDefault(sort = "courseId", direction = Sort.Direction.ASC) Pageable pageable
+            @PageableDefault(sort = "courseId", direction = Sort.Direction.ASC) Pageable pageable,
+            @RequestParam(required = false) UUID userId
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAll(spec, pageable));
+        Page<CourseModel> page;
+        if (userId == null) {
+            page = courseService.findAll(spec, pageable);
+        } else {
+            page = courseService.findAll(SpecificationTemplate.courseUserId(userId).and(spec), pageable);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(page);
     }
 
     @GetMapping("/{courseId}")
