@@ -81,7 +81,7 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<Page<CourseModel>> getAllCourses(
-            CourseSpec spec,
+            SpecificationTemplate.CourseSpec spec,
             @PageableDefault(sort = "courseId", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestParam(required = false) UUID userId
     ) {
