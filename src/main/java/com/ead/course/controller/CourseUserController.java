@@ -17,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +39,7 @@ public class CourseUserController {
     private final CourseUserService courseUserService;
 
     @GetMapping("/courses/{courseId}/users")
-    public ResponseEntity<Object> getAllCoursesByUser(
+    public ResponseEntity<Object> getAllUsersByCourse(
             @PageableDefault(sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
             @PathVariable UUID courseId
     ) {
@@ -71,12 +72,23 @@ public class CourseUserController {
             }
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("User not found.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
             }
         }
         CourseUserModel courseUserModel = courseModel.convertToUserModel(subscriptionDto.getUserId());
         courseUserModel = courseUserService.saveAndSendSubscriptionUserInCourse(courseUserModel);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(courseUserModel);
+    }
+
+    @DeleteMapping("/courses/users/{userId}")
+    public ResponseEntity<Object> deleteCourseUserByUser(
+            @PathVariable UUID userId
+    ) {
+        if (!courseUserService.existsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course not found");
+        }
+        courseUserService.deleteCourseUserByUser(userId);
+        return ResponseEntity.status(HttpStatus.OK).body("CourseUsers deleted successfully!");
     }
 }
